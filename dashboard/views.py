@@ -102,3 +102,93 @@ class DashboardInstrutorView(LoginRequiredMixin, TemplateView):
         ).select_related('aluno')[:10]
         
         return context
+
+
+class InstrutorMixin:
+    """Mixin para views de instrutor - verifica permissão e fornece instrutor."""
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
+        if not request.user.is_instrutor:
+            return redirect('dashboard:index')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_instrutor(self):
+        return self.request.user.instrutor
+
+
+class InstrutorAlunosView(InstrutorMixin, TemplateView):
+    """Lista de alunos do instrutor (mobile-first)."""
+    template_name = 'dashboard/instrutor_alunos.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instrutor = self.get_instrutor()
+        
+        # Alunos com aulas agendadas com este instrutor
+        matriculas_ids = Aula.objects.filter(
+            instrutor=instrutor
+        ).values_list('matricula_id', flat=True).distinct()
+        
+        context['alunos'] = Matricula.objects.filter(
+            id__in=matriculas_ids
+        ).select_related('aluno').order_by('aluno__nome_completo')
+        
+        return context
+
+
+class InstrutorAgendaView(InstrutorMixin, TemplateView):
+    """Agenda do instrutor (mobile-first)."""
+    template_name = 'dashboard/instrutor_agenda.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instrutor = self.get_instrutor()
+        hoje = date.today()
+        amanha = hoje + timedelta(days=1)
+        
+        context['hoje'] = hoje
+        context['amanha'] = amanha
+        
+        # Aulas dos próximos 7 dias
+        context['aulas'] = Aula.objects.filter(
+            instrutor=instrutor,
+            data__gte=hoje,
+            data__lte=hoje + timedelta(days=7)
+        ).select_related('matricula__aluno').order_by('data', 'hora_inicio')
+        
+        # Agrupar por data
+        aulas_por_dia = {}
+        for aula in context['aulas']:
+            if aula.data not in aulas_por_dia:
+                aulas_por_dia[aula.data] = []
+            aulas_por_dia[aula.data].append(aula)
+        context['aulas_por_dia'] = aulas_por_dia
+        
+        return context
+
+
+class InstrutorPerfilView(InstrutorMixin, TemplateView):
+    """Perfil do instrutor (mobile-first)."""
+    template_name = 'dashboard/instrutor_perfil.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instrutor = self.get_instrutor()
+        context['instrutor'] = instrutor
+        
+        # Estatísticas
+        hoje = date.today()
+        context['total_aulas_mes'] = Aula.objects.filter(
+            instrutor=instrutor,
+            data__year=hoje.year,
+            data__month=hoje.month,
+            status='realizada'
+        ).count()
+        
+        context['total_alunos'] = Aula.objects.filter(
+            instrutor=instrutor
+        ).values('matricula').distinct().count()
+        
+        return context

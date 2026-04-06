@@ -1,0 +1,75 @@
+{% extends "layouts/base_instrutor.html" %}
+{% load humanize %}
+
+{% block title %}Minha Agenda - Autoescola Fenix{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div>
+        <h1 class="text-xl font-bold text-secondary">Minha Agenda</h1>
+        <p class="text-sm text-gray-500">Próximos 7 dias</p>
+    </div>
+    
+    <!-- Agenda por Dia -->
+    {% for data, aulas_dia in aulas_por_dia.items %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Data Header -->
+        <div class="bg-gray-50 px-4 py-2 border-b border-gray-100">
+            <h2 class="font-semibold text-secondary">
+                {% if data == hoje %}
+                    Hoje
+                {% elif data == amanha %}
+                    Amanhã
+                {% else %}
+                    {{ data|date:"l, d/m" }}
+                {% endif %}
+            </h2>
+        </div>
+        
+        <!-- Aulas do Dia -->
+        <div class="divide-y divide-gray-100">
+            {% for aula in aulas_dia %}
+            <div class="p-4 flex items-center gap-4">
+                <div class="text-center">
+                    <span class="text-lg font-bold text-primary">{{ aula.hora_inicio|time:"H:i" }}</span>
+                    <span class="block text-xs text-gray-400">{{ aula.hora_fim|time:"H:i" }}</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-medium text-secondary truncate">{{ aula.matricula.aluno.nome_completo }}</h3>
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ aula.matricula.categoria }}
+                        </span>
+                        <span>{{ aula.get_tipo_display }}</span>
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    {% if aula.status == 'agendada' %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Agendada
+                    </span>
+                    {% elif aula.status == 'realizada' %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Realizada
+                    </span>
+                    {% elif aula.status == 'cancelada' %}
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Cancelada
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="mt-4 text-gray-500">Nenhuma aula agendada</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
