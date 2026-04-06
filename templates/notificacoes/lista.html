@@ -1,0 +1,79 @@
+{% extends "layouts/base_admin.html" %}
+
+{% block title %}Notificacoes - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Templates de Notificacao{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'notificacoes:template_criar' %}" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Novo Template
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="font-display font-semibold text-lg text-secondary">Templates de Mensagem</h2>
+        <a href="{% url 'notificacoes:logs' %}" class="text-primary hover:underline text-sm">
+            Ver logs de envio
+        </a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codigo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acoes</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for template in templates %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-secondary">
+                        {{ template.codigo }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-secondary">
+                        {{ template.nome }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full {% if template.tipo == 'whatsapp' %}bg-green-100 text-green-800{% elif template.tipo == 'email' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ template.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600 truncate max-w-xs">
+                        {{ template.assunto|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <button class="text-primary hover:text-primary-dark mr-2" title="Editar">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                        </svg>
+                        Nenhum template cadastrado
+                        <br>
+                        <a href="{% url 'notificacoes:template_criar' %}" class="text-primary hover:underline mt-2 inline-block">
+                            Criar primeiro template
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

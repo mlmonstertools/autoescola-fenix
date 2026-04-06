@@ -1,0 +1,236 @@
+{% extends "layouts/base_instrutor.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Minhas Aulas - Autoescola Fenix{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="text-center pt-2">
+        <p class="text-gray-500 text-sm">{{ "now"|date:"l, d/m/Y" }}</p>
+        <h1 class="font-display text-2xl font-bold text-secondary">Minhas Aulas</h1>
+    </div>
+    
+    <!-- Hoje Card -->
+    <div class="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-white shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-white/80 text-sm">Aulas de hoje</p>
+                <p class="text-5xl font-bold mt-1">{{ total_aulas_hoje }}</p>
+            </div>
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Aulas de Hoje -->
+    <div class="space-y-3">
+        <h2 class="font-display font-semibold text-secondary px-1">Hoje</h2>
+        
+        {% for aula in aulas_hoje %}
+        <div 
+            x-data="{ showModal: false }"
+            class="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+        >
+            <div class="flex items-start gap-4">
+                <div class="text-center min-w-[50px]">
+                    <p class="text-lg font-bold text-secondary">{{ aula.hora_inicio|time:"H:i" }}</p>
+                    <p class="text-xs text-gray-500">{{ aula.duracao_minutos }}min</p>
+                </div>
+                
+                <div class="flex-1">
+                    <p class="font-semibold text-secondary">{{ aula.matricula.aluno.nome_completo }}</p>
+                    <p class="text-sm text-gray-500">{{ aula.get_tipo_display }}</p>
+                    {% if aula.veiculo %}
+                    <p class="text-xs text-gray-400 mt-1">{{ aula.veiculo.placa }} - {{ aula.veiculo.modelo }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex flex-col items-end gap-2">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full
+                        {% if aula.status == 'realizada' %}bg-green-100 text-green-700
+                        {% elif aula.status == 'agendada' %}bg-yellow-100 text-yellow-700
+                        {% elif aula.status == 'confirmada' %}bg-blue-100 text-blue-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ aula.get_status_display }}
+                    </span>
+                    
+                    {% if aula.status != 'realizada' %}
+                    <button 
+                        @click="showModal = true"
+                        class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium min-h-[44px] hover:bg-primary-dark transition-colors"
+                    >
+                        Registrar
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Modal de Registro -->
+            <div 
+                x-show="showModal" 
+                x-cloak
+                class="fixed inset-0 z-50 flex items-end justify-center bg-black/50"
+                @click.self="showModal = false"
+            >
+                <div 
+                    x-show="showModal"
+                    x-transition:enter="transform ease-out duration-300"
+                    x-transition:enter-start="translate-y-full"
+                    x-transition:enter-end="translate-y-0"
+                    x-transition:leave="transform ease-in duration-200"
+                    x-transition:leave-start="translate-y-0"
+                    x-transition:leave-end="translate-y-full"
+                    class="bg-white rounded-t-3xl w-full max-w-lg p-6 pb-10"
+                >
+                    <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
+                    
+                    <h3 class="font-display font-bold text-xl text-secondary mb-4">Registrar Aula</h3>
+                    <p class="text-gray-500 mb-6">{{ aula.matricula.aluno.nome_completo }} - {{ aula.get_tipo_display }}</p>
+                    
+                    <form method="post" action="{% url 'aulas:registrar' aula.pk %}" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        <!-- Status -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select name="status" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent min-h-[48px]">
+                                <option value="realizada">Realizada</option>
+                                <option value="falta_aluno">Falta do Aluno</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
+                        
+                        {% if aula.is_pratica %}
+                        <!-- KM -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">KM Inicial</label>
+                                <input type="number" name="km_inicial" value="{{ aula.veiculo.km_atual }}" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent min-h-[48px]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">KM Final</label>
+                                <input type="number" name="km_final" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent min-h-[48px]">
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Avaliacao -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Avaliacao (1-10)</label>
+                            <input type="range" name="avaliacao" min="1" max="10" value="7" 
+                                   class="w-full" x-data="{ valor: 7 }" x-model="valor">
+                            <p class="text-center text-2xl font-bold text-primary" x-text="valor"></p>
+                        </div>
+                        
+                        <!-- Observacoes -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Observacoes</label>
+                            <textarea name="observacoes" rows="2" 
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                        </div>
+                        
+                        <div class="flex gap-3 pt-4">
+                            <button type="button" @click="showModal = false" 
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium min-h-[48px]">
+                                Cancelar
+                            </button>
+                            <button type="submit" 
+                                    class="flex-1 px-4 py-3 bg-primary text-white rounded-lg font-medium min-h-[48px] hover:bg-primary-dark transition-colors">
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-xl p-8 text-center shadow-sm border border-gray-100">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-gray-500">Nenhuma aula agendada para hoje</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Proximos Dias -->
+    {% if proximas_aulas %}
+    <div class="space-y-3">
+        <h2 class="font-display font-semibold text-secondary px-1">Proximos Dias</h2>
+        
+        {% for aula in proximas_aulas %}
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="text-center min-w-[50px]">
+                    <p class="text-xs text-gray-500">{{ aula.data|date:"D" }}</p>
+                    <p class="text-lg font-bold text-secondary">{{ aula.data|date:"d" }}</p>
+                </div>
+                
+                <div class="flex-1">
+                    <p class="font-medium text-secondary">{{ aula.matricula.aluno.nome_completo }}</p>
+                    <p class="text-sm text-gray-500">{{ aula.hora_inicio|time:"H:i" }} - {{ aula.get_tipo_display }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Meus Alunos -->
+    {% if meus_alunos %}
+    <div class="space-y-3">
+        <h2 class="font-display font-semibold text-secondary px-1">Meus Alunos</h2>
+        
+        {% for matricula in meus_alunos %}
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                    {{ matricula.aluno.nome_completo|slice:":1"|upper }}
+                </div>
+                
+                <div class="flex-1">
+                    <p class="font-medium text-secondary">{{ matricula.aluno.nome_completo }}</p>
+                    <div class="flex items-center gap-4 mt-2">
+                        <div class="flex-1">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Teoricas</span>
+                                <span>{{ matricula.aulas_teoricas_realizadas }}/{{ matricula.AULAS_TEORICAS_MINIMAS }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-primary h-1.5 rounded-full" style="width: {{ matricula.progresso_teorico }}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Praticas</span>
+                                <span>{{ matricula.aulas_praticas_realizadas }}/{{ matricula.AULAS_PRATICAS_MINIMAS }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-green-500 h-1.5 rounded-full" style="width: {{ matricula.progresso_pratico }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if matricula.aluno.telefone %}
+                <a href="{% url 'notificacoes:enviar' matricula.aluno.pk 'lembrete_aula' %}" 
+                   target="_blank"
+                   class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white min-w-[48px]">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

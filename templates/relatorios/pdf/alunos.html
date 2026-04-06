@@ -1,0 +1,50 @@
+{% extends "relatorios/pdf/base.html" %}
+{% load core_tags %}
+
+{% block content %}
+<div class="info-grid">
+    <div class="info-item">
+        <div class="label">Total de Alunos</div>
+        <div class="value">{{ total_alunos }}</div>
+    </div>
+    <div class="info-item">
+        <div class="label">Alunos Ativos</div>
+        <div class="value text-green">{{ alunos_ativos }}</div>
+    </div>
+    <div class="info-item">
+        <div class="label">Alunos Inativos</div>
+        <div class="value">{{ total_alunos|add:"-"|add:alunos_ativos }}</div>
+    </div>
+</div>
+
+<h3>Cadastros por Mes ({{ ano }})</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Mes</th>
+            <th class="text-right">Cadastros</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cadastros_mes %}
+        <tr>
+            <td>
+                {% if item.mes == 1 %}Janeiro{% endif %}
+                {% if item.mes == 2 %}Fevereiro{% endif %}
+                {% if item.mes == 3 %}Marco{% endif %}
+                {% if item.mes == 4 %}Abril{% endif %}
+                {% if item.mes == 5 %}Maio{% endif %}
+                {% if item.mes == 6 %}Junho{% endif %}
+                {% if item.mes == 7 %}Julho{% endif %}
+                {% if item.mes == 8 %}Agosto{% endif %}
+                {% if item.mes == 9 %}Setembro{% endif %}
+                {% if item.mes == 10 %}Outubro{% endif %}
+                {% if item.mes == 11 %}Novembro{% endif %}
+                {% if item.mes == 12 %}Dezembro{% endif %}
+            </td>
+            <td class="text-right">{{ item.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

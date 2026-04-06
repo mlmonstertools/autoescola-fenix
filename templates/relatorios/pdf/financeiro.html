@@ -1,0 +1,23 @@
+{% extends "relatorios/pdf/base.html" %}
+{% load core_tags %}
+
+{% block content %}
+<div class="info-grid">
+    <div class="info-item">
+        <div class="label">Recebido no Mes</div>
+        <div class="value text-green">{{ recebido_mes|formatar_moeda }}</div>
+    </div>
+    <div class="info-item">
+        <div class="label">A Receber</div>
+        <div class="value">{{ a_receber_mes|formatar_moeda }}</div>
+    </div>
+    <div class="info-item">
+        <div class="label">Total Vencido</div>
+        <div class="value text-red">{{ total_vencido|formatar_moeda }}</div>
+    </div>
+</div>
+
+<div class="info-box">
+    <strong>Contratos Ativos:</strong> {{ contratos_ativos }}
+</div>
+{% endblock %}

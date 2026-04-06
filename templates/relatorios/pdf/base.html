@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ titulo }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f97316;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #666;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .info-item .label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .info-item .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #666;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-green {
+            color: #10b981;
+        }
+        .text-red {
+            color: #ef4444;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+        @page {
+            margin: 1.5cm;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AUTOESCOLA FENIX</h1>
+        <p>{{ titulo }}</p>
+        <p>Gerado em: {{ data_geracao|date:"d/m/Y H:i" }}</p>
+    </div>
+    
+    {% block content %}{% endblock %}
+    
+    <div class="footer">
+        Autoescola Fenix - Sistema de Gestao
+    </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends "layouts/base_admin.html" %}
+
+{% block title %}Excluir Aluno - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Excluir Aluno{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'alunos:lista' %}" class="hover:text-primary">Alunos</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">Excluir</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            
+            <h2 class="font-display font-bold text-xl text-secondary mb-2">Confirmar Exclusao</h2>
+            <p class="text-gray-600 mb-6">
+                Tem certeza que deseja excluir o aluno <strong>{{ object.nome_completo }}</strong>?
+                <br><span class="text-sm text-gray-500">Esta acao nao pode ser desfeita.</span>
+            </p>
+            
+            <form method="post" class="flex items-center justify-center gap-4">
+                {% csrf_token %}
+                <a href="{% url 'alunos:lista' %}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="px-6 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+                    Sim, Excluir
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

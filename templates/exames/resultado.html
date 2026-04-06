@@ -1,0 +1,113 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Registrar Resultado - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Registrar Resultado do Exame{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'exames:lista' %}" class="hover:text-primary">Exames</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">Registrar Resultado</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<form method="post" class="space-y-6">
+    {% csrf_token %}
+    
+    <!-- Info do Exame -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+            Informacoes do Exame
+        </h2>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-500">Aluno</p>
+                <p class="font-medium text-secondary">{{ exame.matricula.aluno.nome_completo }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-500">Tipo</p>
+                <p class="font-medium text-secondary">{{ exame.get_tipo_display }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-500">Data</p>
+                <p class="font-medium text-secondary">{{ exame.data_agendamento|date:"d/m/Y" }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-500">Local</p>
+                <p class="font-medium text-secondary">{{ exame.local|default:"-" }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resultado -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Resultado
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="id_resultado" class="block text-sm font-medium text-gray-700 mb-2">
+                    Resultado <span class="text-red-500">*</span>
+                </label>
+                <select 
+                    id="id_resultado" 
+                    name="resultado"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                    <option value="">Selecione</option>
+                    <option value="aprovado">Aprovado</option>
+                    <option value="reprovado">Reprovado</option>
+                    <option value="ausente">Ausente</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="id_data_resultado" class="block text-sm font-medium text-gray-700 mb-2">
+                    Data do Resultado <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="id_data_resultado" 
+                    name="data_resultado"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="id_observacoes" class="block text-sm font-medium text-gray-700 mb-2">
+                    Observacoes
+                </label>
+                <textarea 
+                    id="id_observacoes" 
+                    name="observacoes"
+                    rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >{{ exame.observacoes }}</textarea>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botoes -->
+    <div class="flex items-center justify-end gap-4">
+        <a href="{% url 'exames:lista' %}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+            Cancelar
+        </a>
+        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors">
+            Registrar Resultado
+        </button>
+    </div>
+</form>
+{% endblock %}

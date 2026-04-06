@@ -1,0 +1,80 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Relatorio de Exames - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Relatorio de Exames{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'relatorios:index' %}" class="hover:text-primary">Relatorios</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">Exames</span>
+</nav>
+{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'relatorios:exames' %}?format=pdf" class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors flex items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    Exportar PDF
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Exame Teorico -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="font-display font-semibold text-lg text-secondary mb-4">Exame Teorico</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-500">Aprovados</p>
+                    <p class="font-bold text-3xl text-green-600">{{ total_teorico_aprovado }}</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-500">Reprovados</p>
+                    <p class="font-bold text-3xl text-red-600">{{ total_teorico_reprovado }}</p>
+                </div>
+            </div>
+            
+            {% if total_teorico_aprovado or total_teorico_reprovado %}
+            <div class="mt-4">
+                <p class="text-sm text-gray-500">Taxa de Aprovacao</p>
+                {% with total_teorico_aprovado|add:total_teorico_reprovado as total %}
+                {% if total > 0 %}
+                <div class="w-full bg-gray-200 rounded-full h-4 mt-2">
+                    <div class="bg-green-500 rounded-full h-4" style="width: {{ total_teorico_aprovado|floatformat:0|divisibleby:total|multiply:100 }}%"></div>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Exame Pratico -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="font-display font-semibold text-lg text-secondary mb-4">Exame Pratico</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-500">Aprovados</p>
+                    <p class="font-bold text-3xl text-green-600">{{ total_pratico_aprovado }}</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg text-center">
+                    <p class="text-sm text-gray-500">Reprovados</p>
+                    <p class="font-bold text-3xl text-red-600">{{ total_pratico_reprovado }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

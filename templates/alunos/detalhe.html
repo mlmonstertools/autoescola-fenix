@@ -1,0 +1,343 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}{{ aluno.nome_completo }} - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Detalhes do Aluno{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'alunos:lista' %}" class="hover:text-primary">Alunos</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">{{ aluno.nome_completo }}</span>
+</nav>
+{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center gap-2">
+    {% if aluno.telefone %}
+    <a href="{{ aluno.whatsapp_url }}" target="_blank" 
+       class="px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        WhatsApp
+    </a>
+    {% endif %}
+    <a href="{% url 'alunos:editar' aluno.pk %}" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Editar
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Coluna Principal -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Dados Pessoais -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start gap-6">
+                    {% if aluno.foto %}
+                    <img src="{{ aluno.foto.url }}" alt="{{ aluno.nome_completo }}" class="w-24 h-32 rounded-xl object-cover">
+                    {% else %}
+                    <div class="w-24 h-32 bg-primary/10 rounded-xl flex items-center justify-center text-primary text-4xl font-bold">
+                        {{ aluno.nome_completo|slice:":1"|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex-1">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h2 class="font-display font-bold text-2xl text-secondary">{{ aluno.nome_completo }}</h2>
+                                <p class="text-gray-500">{{ aluno.cpf|cpf }}</p>
+                            </div>
+                            {% if aluno.ativo %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-700">Ativo</span>
+                            {% else %}
+                            <span class="px-3 py-1 text-sm font-medium rounded-full bg-gray-100 text-gray-700">Inativo</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <div>
+                                <p class="text-sm text-gray-500">Email</p>
+                                <p class="font-medium text-secondary">{{ aluno.email }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Telefone</p>
+                                <p class="font-medium text-secondary">{{ aluno.telefone|telefone }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Data de Nascimento</p>
+                                <p class="font-medium text-secondary">{{ aluno.data_nascimento|date:"d/m/Y" }} ({{ aluno.idade }} anos)</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Sexo</p>
+                                <p class="font-medium text-secondary">{{ aluno.get_sexo_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Endereco -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+                    Endereco
+                </h3>
+                
+                {% if aluno.logradouro %}
+                <p class="text-gray-700">
+                    {{ aluno.logradouro }}{% if aluno.numero %}, {{ aluno.numero }}{% endif %}
+                    {% if aluno.complemento %} - {{ aluno.complemento }}{% endif %}
+                </p>
+                <p class="text-gray-700">{{ aluno.bairro }}</p>
+                <p class="text-gray-700">{{ aluno.cidade }}/{{ aluno.uf }} - CEP {{ aluno.cep }}</p>
+                {% else %}
+                <p class="text-gray-500 italic">Endereco nao informado</p>
+                {% endif %}
+            </div>
+            
+            <!-- Matriculas -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                    <h3 class="font-display font-semibold text-lg text-secondary">
+                        Matriculas
+                    </h3>
+                    <a href="{% url 'matriculas:criar' %}?aluno={{ aluno.pk }}" class="text-primary hover:text-primary-dark font-medium text-sm">
+                        + Nova Matricula
+                    </a>
+                </div>
+                
+                {% for matricula in aluno.matriculas.all %}
+                <div class="flex items-center justify-between py-4 {% if not forloop.last %}border-b border-gray-100{% endif %}">
+                    <div>
+                        <p class="font-medium text-secondary">{{ matricula.numero_processo }}</p>
+                        <p class="text-sm text-gray-500">
+                            Categoria {{ matricula.categoria }} - 
+                            {% if matricula.tipo_servico == 'primeira' %}Primeira Habilitacao
+                            {% elif matricula.tipo_servico == 'adicao' %}Adicao de Categoria
+                            {% elif matricula.tipo_servico == 'mudanca' %}Mudanca de Categoria
+                            {% elif matricula.tipo_servico == 'renovacao' %}Renovacao
+                            {% endif %}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">Iniciado em {{ matricula.criado_em|date:"d/m/Y" }}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="px-3 py-1 text-xs font-medium rounded-full {{ matricula.status|status_badge }}">
+                            {{ matricula.get_status_display }}
+                        </span>
+                        <div class="mt-2 flex items-center gap-2">
+                            <a href="{% url 'matriculas:detalhe' matricula.pk %}" class="text-sm text-primary hover:underline">
+                                Ver detalhes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p class="text-gray-500">Nenhuma matricula registrada</p>
+                    <a href="{% url 'matriculas:criar' %}?aluno={{ aluno.pk }}" class="inline-block mt-3 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary-dark transition-colors">
+                        Criar Matricula
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Documentos -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                    <h3 class="font-display font-semibold text-lg text-secondary">
+                        Documentos
+                    </h3>
+                    <button 
+                        @click="$refs.uploadModal.showModal()"
+                        class="text-primary hover:text-primary-dark font-medium text-sm"
+                    >
+                        + Upload
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for doc in aluno.documentos.all %}
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-secondary truncate">{{ doc.get_tipo_display }}</p>
+                            <p class="text-xs text-gray-500">{{ doc.criado_em|date:"d/m/Y H:i" }}</p>
+                        </div>
+                        <a href="{{ doc.arquivo.url }}" target="_blank" class="p-2 text-gray-500 hover:text-primary transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="col-span-2 text-center py-8">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                        <p class="text-gray-500">Nenhum documento anexado</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Coluna Lateral -->
+        <div class="space-y-6">
+            <!-- Resumo -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+                    Resumo
+                </h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Cadastro</span>
+                        <span class="font-medium text-secondary">{{ aluno.criado_em|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Matriculas</span>
+                        <span class="font-medium text-secondary">{{ aluno.matriculas.count }}</span>
+                    </div>
+                    {% if matricula_ativa %}
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Aulas Teoricas</span>
+                        <span class="font-medium text-secondary">{{ matricula_ativa.aulas_teoricas_realizadas }}/{{ matricula_ativa.AULAS_TEORICAS_MINIMAS }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Aulas Praticas</span>
+                        <span class="font-medium text-secondary">{{ matricula_ativa.aulas_praticas_realizadas }}/{{ matricula_ativa.AULAS_PRATICAS_MINIMAS }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Proximas Aulas -->
+            {% if proximas_aulas %}
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+                    Proximas Aulas
+                </h3>
+                
+                <div class="space-y-3">
+                    {% for aula in proximas_aulas %}
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="text-center min-w-[40px]">
+                            <p class="text-xs text-gray-500">{{ aula.data|date:"D" }}</p>
+                            <p class="font-bold text-secondary">{{ aula.data|date:"d" }}</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-secondary">{{ aula.hora_inicio|time:"H:i" }}</p>
+                            <p class="text-sm text-gray-500">{{ aula.get_tipo_display }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Financeiro -->
+            {% if matricula_ativa and matricula_ativa.contrato %}
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+                    Financeiro
+                </h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Valor Total</span>
+                        <span class="font-medium text-secondary">{{ matricula_ativa.contrato.valor_total|moeda }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Valor Pago</span>
+                        <span class="font-medium text-green-600">{{ matricula_ativa.contrato.valor_pago|moeda }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500">Saldo Devedor</span>
+                        <span class="font-medium text-red-600">{{ matricula_ativa.contrato.saldo_devedor|moeda }}</span>
+                    </div>
+                    
+                    {% with proxima=matricula_ativa.contrato.proxima_parcela %}
+                    {% if proxima %}
+                    <div class="pt-4 border-t border-gray-100">
+                        <p class="text-sm text-gray-500 mb-2">Proxima parcela</p>
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-secondary">{{ proxima.numero }}/{{ matricula_ativa.contrato.quantidade_parcelas }}</span>
+                            <span class="font-bold text-secondary">{{ proxima.valor|moeda }}</span>
+                        </div>
+                        <p class="text-sm {% if proxima.esta_vencida %}text-red-500{% else %}text-gray-500{% endif %} mt-1">
+                            Vence {{ proxima.data_vencimento|date:"d/m/Y" }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    
+                    <a href="{% url 'financeiro:contrato_detalhe' matricula_ativa.contrato.pk %}" class="block text-center py-2 text-primary hover:text-primary-dark font-medium text-sm">
+                        Ver detalhes financeiros
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Acoes Rapidas -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+                    Acoes Rapidas
+                </h3>
+                
+                <div class="space-y-2">
+                    {% if aluno.telefone %}
+                    <a href="{{ aluno.whatsapp_url }}" target="_blank" class="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 text-green-600 transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        Enviar WhatsApp
+                    </a>
+                    {% endif %}
+                    <a href="mailto:{{ aluno.email }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 text-blue-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Enviar Email
+                    </a>
+                    <a href="{% url 'alunos:editar' aluno.pk %}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Editar Cadastro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Observacoes -->
+    {% if aluno.observacoes %}
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+            Observacoes
+        </h3>
+        <p class="text-gray-700 whitespace-pre-line">{{ aluno.observacoes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

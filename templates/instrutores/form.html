@@ -1,0 +1,249 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Instrutor - Autoescola Fenix{% endblock %}
+
+{% block header_title %}{% if form.instance.pk %}Editar Instrutor{% else %}Novo Instrutor{% endif %}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'instrutores:lista' %}" class="hover:text-primary">Instrutores</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">{% if form.instance.pk %}Editar{% else %}Novo{% endif %}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<form method="post" class="space-y-6">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+        {% for error in form.non_field_errors %}
+        <p class="text-red-700">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Dados do Usuario -->
+    {% if not form.instance.pk %}
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Dados de Acesso
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="id_nome_completo" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Completo <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_nome_completo" 
+                    name="nome_completo"
+                    value="{{ form.nome_completo.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="id_email" 
+                    name="email"
+                    value="{{ form.email.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_telefone" class="block text-sm font-medium text-gray-700 mb-2">
+                    Telefone
+                </label>
+                <input 
+                    type="text" 
+                    id="id_telefone" 
+                    name="telefone"
+                    value="{{ form.telefone.value|default:'' }}"
+                    x-mask="(99) 99999-9999"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <div>
+                <label for="id_senha" class="block text-sm font-medium text-gray-700 mb-2">
+                    Senha <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="password" 
+                    id="id_senha" 
+                    name="senha"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Credencial DETRAN -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Credencial DETRAN
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+                <label for="id_numero_credencial" class="block text-sm font-medium text-gray-700 mb-2">
+                    Numero da Credencial <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_numero_credencial" 
+                    name="numero_credencial"
+                    value="{{ form.numero_credencial.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_data_emissao_credencial" class="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Emissao <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="id_data_emissao_credencial" 
+                    name="data_emissao_credencial"
+                    value="{{ form.data_emissao_credencial.value|date:'Y-m-d'|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_data_vencimento_credencial" class="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Vencimento <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="id_data_vencimento_credencial" 
+                    name="data_vencimento_credencial"
+                    value="{{ form.data_vencimento_credencial.value|date:'Y-m-d'|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_especialidades" class="block text-sm font-medium text-gray-700 mb-2">
+                    Especialidades <span class="text-red-500">*</span>
+                </label>
+                <select 
+                    id="id_especialidades" 
+                    name="especialidades"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                    <option value="">Selecione</option>
+                    <option value="A" {% if form.especialidades.value == 'A' %}selected{% endif %}>Categoria A (Motos)</option>
+                    <option value="B" {% if form.especialidades.value == 'B' %}selected{% endif %}>Categoria B (Carros)</option>
+                    <option value="AB" {% if form.especialidades.value == 'AB' %}selected{% endif %}>Categorias A e B</option>
+                    <option value="C" {% if form.especialidades.value == 'C' %}selected{% endif %}>Categoria C</option>
+                    <option value="D" {% if form.especialidades.value == 'D' %}selected{% endif %}>Categoria D</option>
+                    <option value="E" {% if form.especialidades.value == 'E' %}selected{% endif %}>Categoria E</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="id_cor_agenda" class="block text-sm font-medium text-gray-700 mb-2">
+                    Cor na Agenda
+                </label>
+                <select 
+                    id="id_cor_agenda" 
+                    name="cor_agenda"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                    <option value="#f97316" {% if form.cor_agenda.value == '#f97316' %}selected{% endif %}>Laranja</option>
+                    <option value="#3b82f6" {% if form.cor_agenda.value == '#3b82f6' %}selected{% endif %}>Azul</option>
+                    <option value="#10b981" {% if form.cor_agenda.value == '#10b981' %}selected{% endif %}>Verde</option>
+                    <option value="#8b5cf6" {% if form.cor_agenda.value == '#8b5cf6' %}selected{% endif %}>Roxo</option>
+                    <option value="#ef4444" {% if form.cor_agenda.value == '#ef4444' %}selected{% endif %}>Vermelho</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CNH do Instrutor -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            CNH do Instrutor
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="id_numero_cnh" class="block text-sm font-medium text-gray-700 mb-2">
+                    Numero da CNH <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_numero_cnh" 
+                    name="numero_cnh"
+                    value="{{ form.numero_cnh.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_categoria_cnh" class="block text-sm font-medium text-gray-700 mb-2">
+                    Categoria <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_categoria_cnh" 
+                    name="categoria_cnh"
+                    value="{{ form.categoria_cnh.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+            
+            <div>
+                <label for="id_validade_cnh" class="block text-sm font-medium text-gray-700 mb-2">
+                    Validade <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="id_validade_cnh" 
+                    name="validade_cnh"
+                    value="{{ form.validade_cnh.value|date:'Y-m-d'|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botoes -->
+    <div class="flex items-center justify-end gap-4">
+        <a href="{% url 'instrutores:lista' %}" class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+            Cancelar
+        </a>
+        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors">
+            {% if form.instance.pk %}Salvar Alteracoes{% else %}Cadastrar Instrutor{% endif %}
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,411 @@
+{% extends "layouts/base_admin.html" %}
+{% load core_tags %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Aluno - Autoescola Fenix{% endblock %}
+
+{% block header_title %}{% if form.instance.pk %}Editar Aluno{% else %}Novo Aluno{% endif %}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'alunos:lista' %}" class="hover:text-primary">Alunos</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">{% if form.instance.pk %}Editar{% else %}Novo{% endif %}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="space-y-6" x-data="alunoForm()">
+    {% csrf_token %}
+    
+    <!-- Erros gerais -->
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                {% for error in form.non_field_errors %}
+                <p class="text-red-700">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Dados Pessoais -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Dados Pessoais
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Nome Completo -->
+            <div class="lg:col-span-2">
+                <label for="id_nome_completo" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nome Completo <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_nome_completo" 
+                    name="nome_completo"
+                    value="{{ form.nome_completo.value|default:'' }}"
+                    class="w-full px-4 py-3 border {% if form.nome_completo.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                {% if form.nome_completo.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.nome_completo.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- CPF -->
+            <div>
+                <label for="id_cpf" class="block text-sm font-medium text-gray-700 mb-2">
+                    CPF <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_cpf" 
+                    name="cpf"
+                    value="{{ form.cpf.value|default:'' }}"
+                    x-mask="999.999.999-99"
+                    class="w-full px-4 py-3 border {% if form.cpf.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                {% if form.cpf.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.cpf.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- RG -->
+            <div>
+                <label for="id_rg" class="block text-sm font-medium text-gray-700 mb-2">
+                    RG
+                </label>
+                <input 
+                    type="text" 
+                    id="id_rg" 
+                    name="rg"
+                    value="{{ form.rg.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- Data de Nascimento -->
+            <div>
+                <label for="id_data_nascimento" class="block text-sm font-medium text-gray-700 mb-2">
+                    Data de Nascimento <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="date" 
+                    id="id_data_nascimento" 
+                    name="data_nascimento"
+                    value="{{ form.data_nascimento.value|date:'Y-m-d'|default:'' }}"
+                    class="w-full px-4 py-3 border {% if form.data_nascimento.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                {% if form.data_nascimento.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.data_nascimento.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Sexo -->
+            <div>
+                <label for="id_sexo" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sexo <span class="text-red-500">*</span>
+                </label>
+                <select 
+                    id="id_sexo" 
+                    name="sexo"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                    <option value="">Selecione</option>
+                    <option value="M" {% if form.sexo.value == 'M' %}selected{% endif %}>Masculino</option>
+                    <option value="F" {% if form.sexo.value == 'F' %}selected{% endif %}>Feminino</option>
+                </select>
+            </div>
+            
+            <!-- Foto -->
+            <div>
+                <label for="id_foto" class="block text-sm font-medium text-gray-700 mb-2">
+                    Foto 3x4
+                </label>
+                <input 
+                    type="file" 
+                    id="id_foto" 
+                    name="foto"
+                    accept="image/*"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white file:cursor-pointer"
+                >
+                {% if form.instance.foto %}
+                <p class="text-sm text-gray-500 mt-2">Foto atual: <a href="{{ form.instance.foto.url }}" target="_blank" class="text-primary hover:underline">Ver</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contato -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Contato
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Email -->
+            <div>
+                <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="id_email" 
+                    name="email"
+                    value="{{ form.email.value|default:'' }}"
+                    class="w-full px-4 py-3 border {% if form.email.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                {% if form.email.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Telefone -->
+            <div>
+                <label for="id_telefone" class="block text-sm font-medium text-gray-700 mb-2">
+                    Telefone <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="id_telefone" 
+                    name="telefone"
+                    value="{{ form.telefone.value|default:'' }}"
+                    x-mask="(99) 99999-9999"
+                    class="w-full px-4 py-3 border {% if form.telefone.errors %}border-red-500{% else %}border-gray-300{% endif %} rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    required
+                >
+                {% if form.telefone.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.telefone.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Telefone 2 -->
+            <div>
+                <label for="id_telefone_2" class="block text-sm font-medium text-gray-700 mb-2">
+                    Telefone 2
+                </label>
+                <input 
+                    type="text" 
+                    id="id_telefone_2" 
+                    name="telefone_2"
+                    value="{{ form.telefone_2.value|default:'' }}"
+                    x-mask="(99) 99999-9999"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+        </div>
+    </div>
+    
+    <!-- Endereco -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Endereco
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- CEP -->
+            <div>
+                <label for="id_cep" class="block text-sm font-medium text-gray-700 mb-2">
+                    CEP
+                </label>
+                <input 
+                    type="text" 
+                    id="id_cep" 
+                    name="cep"
+                    value="{{ form.cep.value|default:'' }}"
+                    x-mask="99999-999"
+                    @blur="buscarCep()"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- Logradouro -->
+            <div class="lg:col-span-2">
+                <label for="id_logradouro" class="block text-sm font-medium text-gray-700 mb-2">
+                    Logradouro
+                </label>
+                <input 
+                    type="text" 
+                    id="id_logradouro" 
+                    name="logradouro"
+                    value="{{ form.logradouro.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- Numero -->
+            <div>
+                <label for="id_numero" class="block text-sm font-medium text-gray-700 mb-2">
+                    Numero
+                </label>
+                <input 
+                    type="text" 
+                    id="id_numero" 
+                    name="numero"
+                    value="{{ form.numero.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- Complemento -->
+            <div>
+                <label for="id_complemento" class="block text-sm font-medium text-gray-700 mb-2">
+                    Complemento
+                </label>
+                <input 
+                    type="text" 
+                    id="id_complemento" 
+                    name="complemento"
+                    value="{{ form.complemento.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- Bairro -->
+            <div>
+                <label for="id_bairro" class="block text-sm font-medium text-gray-700 mb-2">
+                    Bairro
+                </label>
+                <input 
+                    type="text" 
+                    id="id_bairro" 
+                    name="bairro"
+                    value="{{ form.bairro.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- Cidade -->
+            <div>
+                <label for="id_cidade" class="block text-sm font-medium text-gray-700 mb-2">
+                    Cidade
+                </label>
+                <input 
+                    type="text" 
+                    id="id_cidade" 
+                    name="cidade"
+                    value="{{ form.cidade.value|default:'' }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+            </div>
+            
+            <!-- UF -->
+            <div>
+                <label for="id_uf" class="block text-sm font-medium text-gray-700 mb-2">
+                    UF
+                </label>
+                <select 
+                    id="id_uf" 
+                    name="uf"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                    <option value="">Selecione</option>
+                    {% for uf in form.uf.field.choices %}
+                    <option value="{{ uf.0 }}" {% if form.uf.value == uf.0 %}selected{% endif %}>{{ uf.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- LGPD -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Consentimento LGPD
+        </h2>
+        
+        <div class="space-y-4">
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input 
+                    type="checkbox" 
+                    name="consentimento_dados"
+                    {% if form.consentimento_dados.value %}checked{% endif %}
+                    class="mt-1 w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                >
+                <span class="text-gray-700">
+                    Autorizo o tratamento dos meus dados pessoais para fins de cadastro e gestao do processo de habilitacao, 
+                    conforme previsto na Lei Geral de Protecao de Dados (LGPD).
+                </span>
+            </label>
+            
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input 
+                    type="checkbox" 
+                    name="consentimento_imagem"
+                    {% if form.consentimento_imagem.value %}checked{% endif %}
+                    class="mt-1 w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                >
+                <span class="text-gray-700">
+                    Autorizo o uso da minha imagem para fins de identificacao no sistema e nos documentos do DETRAN.
+                </span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Observacoes -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h2 class="font-display font-semibold text-lg text-secondary mb-6 pb-4 border-b border-gray-100">
+            Observacoes
+        </h2>
+        
+        <textarea 
+            id="id_observacoes" 
+            name="observacoes"
+            rows="4"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="Informacoes adicionais sobre o aluno..."
+        >{{ form.observacoes.value|default:'' }}</textarea>
+    </div>
+    
+    <!-- Acoes -->
+    <div class="flex items-center justify-end gap-4">
+        <a href="{% url 'alunos:lista' %}" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+            Cancelar
+        </a>
+        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors">
+            {% if form.instance.pk %}Salvar Alteracoes{% else %}Cadastrar Aluno{% endif %}
+        </button>
+    </div>
+</form>
+
+<script>
+function alunoForm() {
+    return {
+        async buscarCep() {
+            const cep = document.getElementById('id_cep').value.replace(/\D/g, '');
+            if (cep.length !== 8) return;
+            
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+                
+                if (!data.erro) {
+                    document.getElementById('id_logradouro').value = data.logradouro || '';
+                    document.getElementById('id_bairro').value = data.bairro || '';
+                    document.getElementById('id_cidade').value = data.localidade || '';
+                    document.getElementById('id_uf').value = data.uf || '';
+                }
+            } catch (error) {
+                console.error('Erro ao buscar CEP:', error);
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

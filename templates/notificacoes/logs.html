@@ -1,0 +1,82 @@
+{% extends "layouts/base_admin.html" %}
+
+{% block title %}Logs de Notificacoes - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Logs de Envio{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="font-display font-semibold text-lg text-secondary">Historico de Envios</h2>
+        <a href="{% url 'notificacoes:templates' %}" class="text-primary hover:underline text-sm">
+            Voltar para templates
+        </a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aluno</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destinatario</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for log in logs %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {{ log.criado_em|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="{% url 'alunos:detalhe' log.aluno.pk %}" class="text-primary hover:underline font-medium">
+                            {{ log.aluno.nome_completo }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full {% if log.tipo == 'whatsapp' %}bg-green-100 text-green-800{% elif log.tipo == 'email' %}bg-blue-100 text-blue-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ log.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {{ log.destinatario }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full {% if log.status == 'enviado' %}bg-green-100 text-green-800{% elif log.status == 'falha' %}bg-red-100 text-red-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ log.get_status_display|default:log.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        Nenhum envio registrado
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+        <span class="text-sm text-gray-600">
+            Mostrando {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }}
+        </span>
+        <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Anterior</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">Proximo</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

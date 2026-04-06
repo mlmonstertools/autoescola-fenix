@@ -1,0 +1,45 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Virtual environment
+venv/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Static files (collectstatic output)
+staticfiles/
+
+# Media files
+media/
+
+# Environment files
+.env
+.env.local
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Claude cookbooks (não faz parte do projeto)
+claude-cookbooks-main/
+
+# Test coverage
+.coverage
+htmlcov/
+
+# Cache
+.cache/
+*.pytest_cache/

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block body %}
+<!-- Layout Mobile-First para Instrutor -->
+<div class="min-h-screen bg-gray-50 pb-20">
+    <!-- Top Header -->
+    <header class="bg-secondary text-white sticky top-0 z-40">
+        <div class="flex items-center justify-between px-4 h-14">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+                    </svg>
+                </div>
+                <span class="font-display font-bold">Fenix</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-300">{{ request.user.get_short_name }}</span>
+                <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Page Content -->
+    <main class="px-4 py-4">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div class="flex items-center justify-around h-16">
+            <!-- Hoje -->
+            <a href="{% url 'dashboard:instrutor' %}" 
+               class="flex flex-col items-center justify-center gap-1 px-4 py-2 {% if request.resolver_match.url_name == 'instrutor' %}text-primary{% else %}text-gray-500{% endif %}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-xs font-medium">Hoje</span>
+            </a>
+            
+            <!-- Agenda -->
+            <a href="{% url 'aulas:agenda' %}" 
+               class="flex flex-col items-center justify-center gap-1 px-4 py-2 {% if request.resolver_match.app_name == 'aulas' %}text-primary{% else %}text-gray-500{% endif %}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-xs font-medium">Agenda</span>
+            </a>
+            
+            <!-- Alunos -->
+            <a href="{% url 'alunos:lista' %}" 
+               class="flex flex-col items-center justify-center gap-1 px-4 py-2 {% if request.resolver_match.app_name == 'alunos' %}text-primary{% else %}text-gray-500{% endif %}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <span class="text-xs font-medium">Alunos</span>
+            </a>
+            
+            <!-- Perfil -->
+            <a href="{% url 'accounts:perfil' %}" 
+               class="flex flex-col items-center justify-center gap-1 px-4 py-2 {% if request.resolver_match.url_name == 'perfil' %}text-primary{% else %}text-gray-500{% endif %}">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-xs font-medium">Perfil</span>
+            </a>
+        </div>
+    </nav>
+</div>
+{% endblock %}

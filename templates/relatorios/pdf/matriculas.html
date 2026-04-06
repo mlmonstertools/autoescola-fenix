@@ -1,0 +1,40 @@
+{% extends "relatorios/pdf/base.html" %}
+{% load core_tags %}
+
+{% block content %}
+<h3>Por Status</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th class="text-right">Quantidade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in por_status %}
+        <tr>
+            <td>{{ item.status|title }}</td>
+            <td class="text-right">{{ item.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Por Categoria</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Categoria</th>
+            <th class="text-right">Quantidade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in por_categoria %}
+        <tr>
+            <td>Categoria {{ item.categoria }}</td>
+            <td class="text-right">{{ item.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

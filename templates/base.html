@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Autoescola Fenix{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#f97316',
+                        'primary-dark': '#ea580c',
+                        'primary-light': '#fb923c',
+                        secondary: '#191919',
+                        'secondary-light': '#2d2d2d'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        display: ['Outfit', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Alpine Mask Plugin -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        
+        /* Gradient backgrounds */
+        .bg-gradient-fenix {
+            background: linear-gradient(135deg, #191919 0%, #2d2d2d 50%, #191919 100%);
+        }
+        
+        .bg-gradient-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        /* Glow effects */
+        .glow-orange {
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+        }
+        
+        /* Pattern background */
+        .pattern-dots {
+            background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+    {% block body %}
+    {% endblock %}
+    
+    <!-- Toast Notifications -->
+    <div 
+        x-data="{ 
+            toasts: [],
+            addToast(message, type = 'success') {
+                const id = Date.now();
+                this.toasts.push({ id, message, type });
+                setTimeout(() => this.removeToast(id), 5000);
+            },
+            removeToast(id) {
+                this.toasts = this.toasts.filter(t => t.id !== id);
+            }
+        }"
+        @toast.window="addToast($event.detail.message, $event.detail.type)"
+        class="fixed bottom-4 right-4 z-50 space-y-2"
+    >
+        <template x-for="toast in toasts" :key="toast.id">
+            <div 
+                x-show="true"
+                x-transition:enter="transform ease-out duration-300"
+                x-transition:enter-start="translate-x-full opacity-0"
+                x-transition:enter-end="translate-x-0 opacity-100"
+                x-transition:leave="transform ease-in duration-200"
+                x-transition:leave-start="translate-x-0 opacity-100"
+                x-transition:leave-end="translate-x-full opacity-0"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg"
+                :class="{
+                    'bg-green-500 text-white': toast.type === 'success',
+                    'bg-red-500 text-white': toast.type === 'error',
+                    'bg-yellow-500 text-white': toast.type === 'warning',
+                    'bg-blue-500 text-white': toast.type === 'info'
+                }"
+            >
+                <span x-text="toast.message"></span>
+                <button @click="removeToast(toast.id)" class="ml-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </template>
+    </div>
+    
+    <!-- Django Messages as Toasts -->
+    {% if messages %}
+    <script>
+        document.addEventListener('alpine:init', () => {
+            {% for message in messages %}
+            setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { 
+                        message: '{{ message|escapejs }}', 
+                        type: '{% if message.tags == "error" %}error{% elif message.tags == "warning" %}warning{% else %}success{% endif %}'
+                    }
+                }));
+            }, 100);
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Agenda de Aulas - Autoescola Fenix{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{ viewType: 'semana' }">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="font-display text-2xl font-bold text-secondary">Agenda</h1>
+            <p class="text-gray-500">{{ data_atual|date:"F \d\e Y" }}</p>
+        </div>
+        <div class="flex gap-3">
+            <div class="flex bg-gray-100 rounded-lg p-1">
+                <button @click="viewType = 'dia'" :class="viewType === 'dia' ? 'bg-white shadow-sm' : ''" class="px-3 py-1.5 text-sm font-medium rounded-md transition-all">Dia</button>
+                <button @click="viewType = 'semana'" :class="viewType === 'semana' ? 'bg-white shadow-sm' : ''" class="px-3 py-1.5 text-sm font-medium rounded-md transition-all">Semana</button>
+                <button @click="viewType = 'mes'" :class="viewType === 'mes' ? 'bg-white shadow-sm' : ''" class="px-3 py-1.5 text-sm font-medium rounded-md transition-all">Mes</button>
+            </div>
+            <a href="{% url 'aulas:criar' %}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-4 py-2 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Nova Aula
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <input type="date" name="data" value="{{ data_filtro|date:'Y-m-d' }}" class="w-full pl-4 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            <select name="instrutor" class="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                <option value="">Todos os instrutores</option>
+                {% for inst in instrutores %}
+                <option value="{{ inst.pk }}" {% if request.GET.instrutor == inst.pk|stringformat:"s" %}selected{% endif %}>{{ inst.usuario.nome_completo }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                Filtrar
+            </button>
+        </form>
+    </div>
+    
+    <!-- Grade de Horarios -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-20">Hora</th>
+                        {% for dia in dias_semana %}
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                            {{ dia.nome }}<br>
+                            <span class="text-secondary font-bold">{{ dia.data|date:"d" }}</span>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for hora in horarios %}
+                    <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-500">{{ hora }}</td>
+                        {% for dia in dias_semana %}
+                        <td class="px-2 py-1 border-l border-gray-100">
+                            {% for aula in aulas %}
+                            {% if aula.data == dia.data and aula.hora_inicio|time:"H:i" == hora %}
+                            <div class="p-2 rounded-lg text-xs mb-1" style="background-color: {{ aula.instrutor.cor_agenda|default:'#f97316' }}20; border-left: 3px solid {{ aula.instrutor.cor_agenda|default:'#f97316' }}">
+                                <p class="font-medium text-secondary truncate">{{ aula.matricula.aluno.nome_completo }}</p>
+                                <p class="text-gray-500">{{ aula.instrutor.usuario.nome_completo|slice:":15" }}</p>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Lista de Aulas do Dia -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-100">
+            <h2 class="font-medium text-secondary">Aulas de Hoje</h2>
+        </div>
+        {% if aulas_hoje %}
+        <div class="divide-y divide-gray-100">
+            {% for aula in aulas_hoje %}
+            <div class="p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold" style="background-color: {{ aula.instrutor.cor_agenda|default:'#f97316' }}">
+                            {{ aula.hora_inicio|time:"H:i" }}
+                        </div>
+                        <div>
+                            <p class="font-medium text-secondary">{{ aula.matricula.aluno.nome_completo }}</p>
+                            <p class="text-sm text-gray-500">{{ aula.instrutor.usuario.nome_completo }} - {{ aula.tipo_display }}</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 text-xs font-medium rounded-full 
+                        {% if aula.status == 'agendada' %}bg-blue-100 text-blue-700
+                        {% elif aula.status == 'realizada' %}bg-green-100 text-green-700
+                        {% elif aula.status == 'cancelada' %}bg-red-100 text-red-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ aula.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <p class="text-gray-500">Nenhuma aula agendada para hoje</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

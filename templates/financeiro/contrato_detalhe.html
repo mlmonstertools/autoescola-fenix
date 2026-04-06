@@ -1,0 +1,152 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Contrato {{ contrato.matricula.numero_processo }} - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Detalhes do Contrato{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+    <a href="{% url 'dashboard:index' %}" class="hover:text-primary">Dashboard</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'financeiro:index' %}" class="hover:text-primary">Financeiro</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <a href="{% url 'financeiro:contratos' %}" class="hover:text-primary">Contratos</a>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+    </svg>
+    <span class="text-secondary">{{ contrato.matricula.numero_processo }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Resumo -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Info do Contrato -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-start justify-between mb-6">
+                    <div>
+                        <h2 class="font-display font-bold text-2xl text-secondary">{{ contrato.matricula.numero_processo }}</h2>
+                        <p class="text-gray-500">
+                            <a href="{% url 'alunos:detalhe' contrato.matricula.aluno.pk %}" class="text-primary hover:underline">
+                                {{ contrato.matricula.aluno.nome_completo }}
+                            </a>
+                        </p>
+                    </div>
+                    <span class="text-sm text-gray-500">Data: {{ contrato.data_contrato|date:"d/m/Y" }}</span>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Valor Total</p>
+                        <p class="font-bold text-lg text-secondary">{{ contrato.valor_total|moeda }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Desconto</p>
+                        <p class="font-bold text-lg text-red-600">-{{ contrato.desconto|moeda }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Valor Liquido</p>
+                        <p class="font-bold text-lg text-secondary">{{ contrato.valor_liquido|moeda }}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">Entrada</p>
+                        <p class="font-bold text-lg text-secondary">{{ contrato.valor_entrada|moeda }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Parcelas -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4 pb-4 border-b border-gray-100">
+                    Parcelas
+                </h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">#</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Vencimento</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Valor</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Pagamento</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500">Acoes</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for parcela in contrato.parcelas.all %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 font-medium">{{ parcela.numero }}</td>
+                                <td class="px-4 py-3">{{ parcela.data_vencimento|date:"d/m/Y" }}</td>
+                                <td class="px-4 py-3">{{ parcela.valor|moeda }}</td>
+                                <td class="px-4 py-3">
+                                    {% if parcela.status == 'paga' %}
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Paga</span>
+                                    {% elif parcela.status == 'vencida' %}
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Vencida</span>
+                                    {% else %}
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Aberta</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3">
+                                    {% if parcela.data_pagamento %}
+                                    {{ parcela.data_pagamento|date:"d/m/Y" }} - {{ parcela.valor_pago|moeda }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    {% if parcela.status != 'paga' %}
+                                    <a href="{% url 'financeiro:parcela_pagar' parcela.pk %}" class="text-primary hover:text-primary-dark font-medium text-sm">
+                                        Registrar Pagamento
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resumo Lateral -->
+        <div class="space-y-6">
+            <!-- Resumo Financeiro -->
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4">Resumo</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Pago</span>
+                        <span class="font-bold text-green-600">{{ contrato.valor_pago|moeda }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Pendente</span>
+                        <span class="font-bold text-red-600">{{ contrato.valor_pendente|moeda }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">Parcelas</span>
+                        <span class="font-bold text-secondary">{{ contrato.parcelas.filter.count }}/{{ contrato.numero_parcelas }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Observacoes -->
+            {% if contrato.observacoes %}
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-display font-semibold text-lg text-secondary mb-4">Observacoes</h3>
+                <p class="text-gray-600">{{ contrato.observacoes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

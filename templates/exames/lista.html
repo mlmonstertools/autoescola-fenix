@@ -1,0 +1,184 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Exames - Autoescola Fenix{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="font-display text-2xl font-bold text-secondary">Exames</h1>
+            <p class="text-gray-500">Gerenciamento de exames teoricos e praticos</p>
+        </div>
+        <a href="{% url 'exames:criar' %}" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium px-4 py-2 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Agendar Exame
+        </a>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-secondary">{{ agendados_hoje }}</p>
+                    <p class="text-sm text-gray-500">Agendados hoje</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-secondary">{{ aprovados_mes }}</p>
+                    <p class="text-sm text-gray-500">Aprovados no mes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-2xl font-bold text-secondary">{{ reprovados_mes }}</p>
+                    <p class="text-sm text-gray-500">Reprovados no mes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Buscar por aluno..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            <select name="tipo" class="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                <option value="">Todos os tipos</option>
+                <option value="teorico" {% if request.GET.tipo == "teorico" %}selected{% endif %}>Teorico</option>
+                <option value="pratico" {% if request.GET.tipo == "pratico" %}selected{% endif %}>Pratico</option>
+            </select>
+            <select name="resultado" class="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                <option value="">Todos os resultados</option>
+                <option value="pendente" {% if request.GET.resultado == "pendente" %}selected{% endif %}>Pendente</option>
+                <option value="aprovado" {% if request.GET.resultado == "aprovado" %}selected{% endif %}>Aprovado</option>
+                <option value="reprovado" {% if request.GET.resultado == "reprovado" %}selected{% endif %}>Reprovado</option>
+            </select>
+            <button type="submit" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">
+                Filtrar
+            </button>
+        </form>
+    </div>
+    
+    <!-- Lista de Exames -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {% if exames %}
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Aluno</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Local</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Resultado</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase">Acoes</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for exame in exames %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <p class="font-medium text-secondary">{{ exame.matricula.aluno.nome_completo }}</p>
+                        <p class="text-sm text-gray-500">{{ exame.matricula.numero_processo }}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full 
+                            {% if exame.tipo == 'teorico' %}bg-purple-100 text-purple-700
+                            {% else %}bg-blue-100 text-blue-700{% endif %}">
+                            {{ exame.get_tipo_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-700">
+                        {{ exame.data_agendamento|date:"d/m/Y" }} as {{ exame.hora|time:"H:i" }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ exame.local|default:"-" }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full 
+                            {% if exame.resultado == 'aprovado' %}bg-green-100 text-green-700
+                            {% elif exame.resultado == 'reprovado' %}bg-red-100 text-red-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ exame.get_resultado_display|default:"Pendente" }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            {% if not exame.resultado %}
+                            <a href="{% url 'exames:registrar_resultado' exame.pk %}" class="px-3 py-1.5 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+                                Registrar Resultado
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'exames:editar' exame.pk %}" class="p-2 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Paginacao -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+            <p class="text-sm text-gray-500">
+                Mostrando {{ page_obj.start_index }} a {{ page_obj.end_index }} de {{ page_obj.paginator.count }} resultados
+            </p>
+            <div class="flex gap-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Anterior</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Proximo</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+            </svg>
+            <p class="text-gray-500">Nenhum exame encontrado</p>
+            <a href="{% url 'exames:criar' %}" class="mt-4 inline-flex items-center gap-2 text-primary hover:text-primary-dark font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Agendar primeiro exame
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

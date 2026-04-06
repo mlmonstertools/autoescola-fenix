@@ -1,0 +1,94 @@
+{% extends "layouts/base_admin.html" %}
+{% load humanize core_tags %}
+
+{% block title %}Alunos - Autoescola Fenix{% endblock %}
+
+{% block header_title %}Alunos{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'alunos:criar' %}" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+    </svg>
+    Novo Aluno
+</a>
+{% endblock %}
+
+{% block content %}
+<div x-data="{ 
+    filtroStatus: '{{ request.GET.status|default:'' }}',
+    search: '{{ request.GET.q|default:'' }}'
+}" class="space-y-6">
+    
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <!-- Busca -->
+            <div class="flex-1 relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input 
+                    type="text" 
+                    name="q" 
+                    x-model="search"
+                    placeholder="Buscar por nome, CPF ou email..."
+                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    hx-get="{% url 'alunos:lista' %}"
+                    hx-trigger="keyup changed delay:300ms"
+                    hx-target="#tabela-alunos"
+                    hx-swap="innerHTML"
+                    hx-include="[name='status']"
+                >
+            </div>
+            
+            <!-- Status -->
+            <select 
+                name="status" 
+                x-model="filtroStatus"
+                class="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                hx-get="{% url 'alunos:lista' %}"
+                hx-trigger="change"
+                hx-target="#tabela-alunos"
+                hx-swap="innerHTML"
+                hx-include="[name='q']"
+            >
+                <option value="">Todos os status</option>
+                <option value="ativo">Ativos</option>
+                <option value="inativo">Inativos</option>
+            </select>
+            
+            <button type="submit" class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                Filtrar
+            </button>
+        </form>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Total</p>
+            <p class="text-2xl font-bold text-secondary">{{ total_alunos }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Ativos</p>
+            <p class="text-2xl font-bold text-green-600">{{ total_ativos }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Com Matricula</p>
+            <p class="text-2xl font-bold text-blue-600">{{ total_matriculados }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Este Mes</p>
+            <p class="text-2xl font-bold text-primary">{{ cadastrados_mes }}</p>
+        </div>
+    </div>
+    
+    <!-- Tabela -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div id="tabela-alunos">
+            {% include "alunos/partials/tabela.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}
